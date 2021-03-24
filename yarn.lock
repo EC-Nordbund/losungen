@@ -22,12 +22,12 @@ isarray@~1.0.0:
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
 
-json_xml@^1.2.5:
+json_xml@1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/json_xml/-/json_xml-1.2.5.tgz#d1ef04ebe3a9938423576ae005ca3abdbc2e9582"
   integrity sha1-0e8E6+Opk4QjV2rgBco6vbwulYI=
 
-jszip@^3.6.0:
+jszip@3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.6.0.tgz#839b72812e3f97819cc13ac4134ffced95dd6af9"
   integrity sha512-jgnQoG9LKnWO3mnVNBnfhkh0QknICd1FGSrXcgrl67zioyJ4wgx25o9ZqwNtrROSflGBCGYnJfjrIyRIby1OoQ==
@@ -44,7 +44,7 @@ lie@~3.3.0:
   dependencies:
     immediate "~3.0.5"
 
-node-fetch@^2.6.1:
+node-fetch@2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
   integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
