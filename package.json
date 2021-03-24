@@ -1,0 +1,12 @@
+{
+  "name": "losungen",
+  "version": "2021.0.2",
+  "scripts": {
+    "postinstall": "node build.js"
+  },
+  "dependencies": {
+    "json_xml": "^1.2.5",
+    "jszip": "^3.6.0",
+    "node-fetch": "^2.6.1"
+  }
+}
