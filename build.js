@@ -1,56 +1,67 @@
-const fs = require('fs')
-const fetch = require('node-fetch')
-const zip = require('jszip')
+const fs = require("fs");
+const zip = require("jszip");
 
-const PATH = './data/'
+const PATH = "./data/";
 
-function losungen() {
-  if (!fs.existsSync(PATH)) {
-    fs.mkdirSync(PATH)
-  }
-
-  fs.readdirSync(PATH)
-    .filter((v) => v[0] !== '.')
-    .map((v) => PATH + v)
-    .forEach(fs.unlinkSync)
-
-  const z = new zip()
-
-  function getPart(p, str) {
-    return (' ' + str).split(`<${p}>`)[1].split(`</${p}>`)[0]
-  }
-
-  fetch(
-    'https://www.losungen.de/fileadmin/media-losungen/download/Losung_2021_XML.zip'
-  )
-    .then((v) => v.arrayBuffer())
-    .then(v => {
-      return z.loadAsync(v)
-    })
-    .then(() => z.file(Object.keys(z.files).filter(v => !v.endsWith('pdf'))[0]).nodeStream('nodebuffer'))
-    .then(v => new fetch.Response(v))
-    .then(v => v.text())
-    .then(v => v.split('<Losungen>').slice(1).map(v => v.split('</Losungen>')[0]))
-    .then(v => {
-      const d = {}
-
-      v.forEach(el => {
-        d[getPart('Datum', el).split('T')[0]] = {
-          Losungstext: getPart('Losungstext', el),
-          Losungsvers: getPart('Losungsvers', el),
-          Lehrtext: getPart('Lehrtext', el),
-          Lehrtextvers: getPart('Lehrtextvers', el),
-        }
-      })
-      return d
-    })
-    .then((content) => {
-      Object.keys(content).forEach((date) => {
-        fs.writeFileSync(PATH + date + '.json', JSON.stringify(content[date]))
-      })
-
-      fs.writeFileSync(PATH + 'losungen.json', JSON.stringify(content))
-    })
+function streamToString(stream) {
+  const chunks = [];
+  return new Promise((resolve, reject) => {
+    stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+    stream.on("error", (err) => reject(err));
+    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+  });
 }
 
-losungen()
+function getPart(p, str) {
+  return (" " + str).split(`<${p}>`)[1].split(`</${p}>`)[0];
+}
+
+async function losungen(year) {
+  const z = new zip();
+
+  const zipResult = await fetch(
+    `https://www.losungen.de/fileadmin/media-losungen/download/Losung_${year}_XML.zip`,
+  );
+  const zipBuffer = await zipResult.arrayBuffer();
+  await z.loadAsync(zipBuffer);
+  const csvFile = z.file(
+    Object.keys(z.files).filter((v) => v.endsWith("xml"))[0],
+  ).nodeStream("nodebuffer");
+  /**
+   * @type {string}
+   */
+  const csvContent = await streamToString(csvFile);
+  const days = csvContent.split("<Losungen>").slice(1);
+
+  for (const day of days) {
+    const datum = getPart("Datum", day).split('T')[0];
+
+    const Losungstext = getPart("Losungstext", day);
+    const Losungsvers = getPart("Losungsvers", day);
+    const Lehrtext = getPart("Lehrtext", day);
+    const Lehrtextvers = getPart("Lehrtextvers", day);
+    
+    const data = {
+      Losungstext,
+      Losungsvers,
+      Lehrtext,
+      Lehrtextvers
+    }
+
+    fs.writeFileSync(PATH + datum + '.json', JSON.stringify(data))
+  }
+}
+
+if (!fs.existsSync(PATH)) {
+  fs.mkdirSync(PATH);
+}
+
+fs.readdirSync(PATH)
+  .filter((v) => v[0] !== ".")
+  .map((v) => PATH + v)
+  .forEach(fs.unlinkSync);
+
+const currentYear = new Date().getFullYear()
+losungen(currentYear).then(() => {
+  losungen(currentYear + 1).catch(() => {console.warn('NO DATA FOR NEXT YEAR!')})
+});
