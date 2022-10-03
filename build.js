@@ -19,6 +19,7 @@ function getPart(p, str) {
 async function losungen(year) {
   const z = new zip();
 
+  // Warum XML? Die anderen datein sind komisch encodiert!
   const zipResult = await fetch(
     `https://www.losungen.de/fileadmin/media-losungen/download/Losung_${year}_XML.zip`,
   );
